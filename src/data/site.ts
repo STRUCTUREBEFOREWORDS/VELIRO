@@ -9,11 +9,6 @@ export type Plan = {
   features: string[]
 }
 
-export type PriceOption = {
-  name: string
-  price: string
-}
-
 export type ProcessStep = {
   step: string
   title: string
@@ -62,30 +57,49 @@ export const homeSections = [
 
 export const plans: Plan[] = [
   {
-    name: 'STRUCTURE',
-    price: '¥300,000',
-    features: ['構造設計', '最大5ページ', '基本導線設計', 'レスポンシブ対応'],
+    name: "STRUCTURE",
+    price: "¥300,000",
+    features: [
+      "構造設計",
+      "最大5ページ",
+      "基本導線設計",
+      "レスポンシブ対応",
+      "更新サポート込み",
+      "SEO初期設計込み",
+    ],
   },
   {
-    name: 'CORE',
-    price: '¥400,000',
-    features: ['構造設計', '最大7ページ', '価格導線設計', 'コンバージョン導線調整'],
+    name: "CORE",
+    price: "¥400,000",
+    features: [
+      "構造設計",
+      "最大7ページ",
+      "価格導線設計",
+      "コンバージョン導線調整",
+      "更新サポート込み",
+      "SEO初期設計込み",
+      "多言語対応込み",
+      "アニメーション設計込み",
+    ],
   },
   {
-    name: 'SIGNATURE',
-    price: '¥500,000',
-    features: ['構造設計', '最大7ページ', 'ブランド再整理', 'CV構造最適化', 'PROCESS体験強化'],
+    name: "SIGNATURE",
+    price: "¥500,000",
+    features: [
+      "構造設計",
+      "最大8ページ",
+      "ブランド再整理",
+      "CV構造最適化",
+      "PROCESS体験強化",
+      "更新サポート込み",
+      "SEO初期設計込み",
+      "多言語対応込み",
+      "EC機能込み",
+      "アニメーション設計込み",
+      "追加1ページ込み",
+    ],
   },
-]
-
-export const priceOptions: PriceOption[] = [
-  { name: 'ページ追加', price: '¥30,000 / page' },
-  { name: '更新サポート', price: '¥5,000 / 月' },
-  { name: '多言語対応', price: '¥30,000' },
-  { name: 'EC機能', price: '¥100,000' },
-  { name: 'アニメーション設計', price: '¥50,000' },
-  { name: 'SEO初期設計', price: '¥30,000' },
-]
+];
 
 export const processSteps: ProcessStep[] = [
   {

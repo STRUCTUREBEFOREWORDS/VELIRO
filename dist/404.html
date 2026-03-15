@@ -8,11 +8,12 @@
         var location = window.location
         var basePath = location.pathname.slice(0, 1 + location.pathname.slice(1).indexOf('/'))
         var route = location.pathname.slice(basePath.length)
+        var normalizedRoute = route.charAt(0) === '/' ? route : '/' + route
         var redirectUrl =
           location.origin +
           basePath +
           '/#' +
-          route +
+          normalizedRoute +
           location.search +
           location.hash
 

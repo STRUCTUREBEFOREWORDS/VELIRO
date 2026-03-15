@@ -29,12 +29,13 @@
         }
 
         const decodedPath = route.replace(/~and~/g, '&')
+        const normalizedPath = decodedPath.startsWith('/') ? decodedPath : '/' + decodedPath
         const query = redirect.searchParams.get('q')
         const hash = redirect.hash || ''
         const nextUrl =
           redirect.pathname +
           '#' +
-          decodedPath +
+          normalizedPath +
           (query ? '?' + query : '') +
           hash
 

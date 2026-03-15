@@ -31,7 +31,12 @@
         const decodedPath = route.replace(/~and~/g, '&')
         const query = redirect.searchParams.get('q')
         const hash = redirect.hash || ''
-        const nextUrl = decodedPath + (query ? '?' + query : '') + hash
+        const nextUrl =
+          redirect.pathname +
+          '#' +
+          decodedPath +
+          (query ? '?' + query : '') +
+          hash
 
         window.history.replaceState(null, '', nextUrl)
       })()

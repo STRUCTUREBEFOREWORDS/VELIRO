@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import {
   getContactInquiryFormFields,
+  getContactProjectRecommendation,
   getContactProjectFormFields,
 } from "../data/site";
 import { useSitePreferences } from "../context/SitePreferences";
@@ -10,10 +11,11 @@ type ContactTab = "inquiry" | "project";
 type SubmitStatus = "idle" | "sending" | "success" | "error";
 
 export function ContactPage() {
-  const { locale } = useSitePreferences();
+  const { locale, currency } = useSitePreferences();
   const [activeTab, setActiveTab] = useState<ContactTab>("inquiry");
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
   const [submitMessage, setSubmitMessage] = useState("");
+  const [projectValues, setProjectValues] = useState<Record<string, string>>({});
   const configuredEndpoint =
     import.meta.env.VITE_CONTACT_FORM_ENDPOINT?.trim() ?? "";
   const contactEmail = import.meta.env.VITE_CONTACT_EMAIL?.trim() ?? "";
@@ -26,6 +28,14 @@ export function ContactPage() {
       tabs: {
         inquiry: "お問い合わせ",
         project: "制作依頼",
+      },
+      recommendation: {
+        eyebrow: "AUTO PLAN",
+        title: "入力内容から最適と判断したプラン",
+        reasonTitle: "このプランが最適な理由",
+        placeholder: "選択してください",
+        mailPlanLabel: "自動提案プラン",
+        mailReasonLabel: "提案理由",
       },
       submit: "送信する",
       sending: "送信中...",
@@ -53,6 +63,14 @@ export function ContactPage() {
       tabs: {
         inquiry: "Inquiry",
         project: "Project Request",
+      },
+      recommendation: {
+        eyebrow: "AUTO PLAN",
+        title: "Best-fit plan based on your inputs",
+        reasonTitle: "Why this plan is the strongest fit",
+        placeholder: "Select an option",
+        mailPlanLabel: "Recommended plan",
+        mailReasonLabel: "Recommendation reasons",
       },
       submit: "Send",
       sending: "Sending...",
@@ -87,6 +105,14 @@ export function ContactPage() {
       ? getContactInquiryFormFields(locale)
       : getContactProjectFormFields(locale);
 
+  const recommendation = useMemo(() => {
+    if (activeTab !== "project") {
+      return null;
+    }
+
+    return getContactProjectRecommendation(locale, currency, projectValues);
+  }, [activeTab, currency, locale, projectValues]);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -98,6 +124,15 @@ export function ContactPage() {
     formData.append("locale", locale);
     formData.append("_subject", subject);
     formData.append("_captcha", "false");
+
+    if (activeTab === "project" && recommendation) {
+      formData.append("recommended_plan_id", recommendation.planId);
+      formData.append("recommended_plan", recommendation.planName);
+      formData.append(
+        "recommendation_reasons",
+        recommendation.reasons.join(" | "),
+      );
+    }
 
     if (configuredEndpoint) {
       try {
@@ -117,6 +152,9 @@ export function ContactPage() {
         }
 
         form.reset();
+        if (activeTab === "project") {
+          setProjectValues({});
+        }
         setSubmitStatus("success");
         setSubmitMessage(copy.status.success);
         return;
@@ -128,12 +166,19 @@ export function ContactPage() {
     }
 
     if (contactEmail) {
-      const body = fields
-        .map(
+      const body = [
+        ...(activeTab === "project" && recommendation
+          ? [
+              `${copy.recommendation.mailPlanLabel}: ${recommendation.planName} (${recommendation.monthlyFee})`,
+              `${copy.recommendation.mailReasonLabel}: ${recommendation.reasons.join(" / ")}`,
+              "",
+            ]
+          : []),
+        ...fields.map(
           (field) =>
             `${field.label}: ${String(formData.get(field.name) ?? "")}`,
-        )
-        .join("\n");
+        ),
+      ].join("\n");
 
       window.location.href = `mailto:${encodeURIComponent(contactEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       setSubmitStatus("success");
@@ -182,8 +227,10 @@ export function ContactPage() {
 
           <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
             {fields.map((field) => {
+              const controlledValue = projectValues[field.name] ?? "";
+
               return (
-                <label key={field.name} className="grid gap-2">
+                <label key={`${activeTab}-${field.name}`} className="grid gap-2">
                   <span className="text-sm text-white/60">{field.label}</span>
                   {field.type === "textarea" ? (
                     <textarea
@@ -191,18 +238,93 @@ export function ContactPage() {
                       rows={5}
                       className="input-field resize-y"
                       placeholder={field.label}
+                      value={activeTab === "project" ? controlledValue : undefined}
+                      onChange={
+                        activeTab === "project"
+                          ? (event) =>
+                              setProjectValues((current) => ({
+                                ...current,
+                                [field.name]: event.target.value,
+                              }))
+                          : undefined
+                      }
                     />
+                  ) : field.type === "select" ? (
+                    <select
+                      name={field.name}
+                      className="input-field"
+                      value={controlledValue}
+                      onChange={(event) =>
+                        setProjectValues((current) => ({
+                          ...current,
+                          [field.name]: event.target.value,
+                        }))
+                      }
+                    >
+                      <option value="">{copy.recommendation.placeholder}</option>
+                      {field.options?.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
                   ) : (
                     <input
                       name={field.name}
                       type={field.type}
                       className="input-field"
                       placeholder={field.label}
+                      value={activeTab === "project" ? controlledValue : undefined}
+                      onChange={
+                        activeTab === "project"
+                          ? (event) =>
+                              setProjectValues((current) => ({
+                                ...current,
+                                [field.name]: event.target.value,
+                              }))
+                          : undefined
+                      }
                     />
                   )}
                 </label>
               );
             })}
+
+            {activeTab === "project" && recommendation ? (
+              <div className="rounded-[1.8rem] border border-cyan-300/30 bg-cyan-300/10 p-5 text-white">
+                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-cyan-200">
+                  {copy.recommendation.eyebrow}
+                </p>
+                <p className="mt-3 text-sm text-white/60">
+                  {copy.recommendation.title}
+                </p>
+                <div className="mt-4 flex flex-wrap items-end justify-between gap-4 rounded-[1.5rem] border border-white/10 bg-black/10 px-5 py-4">
+                  <div>
+                    <p className="font-['Space_Grotesk'] text-2xl tracking-[0.16em] text-white">
+                      {recommendation.planName}
+                    </p>
+                    <p className="mt-2 text-sm leading-7 text-white/70">
+                      {recommendation.summary}
+                    </p>
+                  </div>
+                  <p className="text-2xl font-medium text-cyan-100">
+                    {recommendation.monthlyFee}
+                  </p>
+                </div>
+                <div className="mt-4 rounded-[1.5rem] border border-white/10 bg-black/10 px-5 py-4">
+                  <p className="text-xs uppercase tracking-[0.22em] text-white/45">
+                    {copy.recommendation.reasonTitle}
+                  </p>
+                  <div className="mt-4 space-y-3">
+                    {recommendation.reasons.map((reason) => (
+                      <p key={reason} className="text-sm leading-7 text-white/75">
+                        {reason}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             <div
               className={[

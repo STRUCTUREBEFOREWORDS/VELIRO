@@ -90,18 +90,38 @@ export type SampleProject = {
   deliverables: string[];
 };
 
-export type ContactFieldType = "text" | "email" | "textarea";
+export type ContactFieldType = "text" | "email" | "textarea" | "select";
+
+export type ContactFieldOption = {
+  value: string;
+  label: string;
+};
 
 export type ContactFormField = {
   name: string;
   type: ContactFieldType;
   label: string;
+  options?: ContactFieldOption[];
+};
+
+type ContactFieldOptionDefinition = {
+  value: string;
+  label: LocalizedText;
 };
 
 type ContactFormFieldDefinition = {
   name: string;
   type: ContactFieldType;
   label: LocalizedText;
+  options?: ContactFieldOptionDefinition[];
+};
+
+export type ContactProjectRecommendation = {
+  planId: PlanDefinition["id"];
+  planName: string;
+  monthlyFee: string;
+  summary: string;
+  reasons: string[];
 };
 
 const currencyRates: Record<CurrencyCode, number> = {
@@ -559,9 +579,14 @@ const contactProjectFieldDefinitions: ContactFormFieldDefinition[] = [
     label: { ja: "メールアドレス", en: "Email address" },
   },
   {
-    name: "preferred_plan",
-    type: "text",
-    label: { ja: "希望プラン", en: "Preferred plan" },
+    name: "business_stage",
+    type: "select",
+    label: { ja: "現在のフェーズ", en: "Current business stage" },
+    options: [
+      { value: "launch", label: { ja: "立ち上げ期", en: "Launch stage" } },
+      { value: "renewal", label: { ja: "既存サイトの見直し", en: "Existing site renewal" } },
+      { value: "growth", label: { ja: "集客・拡張を強化したい", en: "Growth and acquisition focus" } },
+    ],
   },
   { name: "industry", type: "text", label: { ja: "業種", en: "Industry" } },
   {
@@ -570,24 +595,44 @@ const contactProjectFieldDefinitions: ContactFormFieldDefinition[] = [
     label: { ja: "サイト目的", en: "Site objective" },
   },
   {
-    name: "target_audience",
-    type: "text",
-    label: { ja: "ターゲット", en: "Target audience" },
+    name: "page_scale",
+    type: "select",
+    label: { ja: "想定ページ規模", en: "Expected page scale" },
+    options: [
+      { value: "small", label: { ja: "1〜3ページ程度", en: "Around 1 to 3 pages" } },
+      { value: "medium", label: { ja: "4〜7ページ程度", en: "Around 4 to 7 pages" } },
+      { value: "large", label: { ja: "8ページ以上", en: "8 pages or more" } },
+    ],
   },
   {
-    name: "page_count",
-    type: "text",
-    label: { ja: "必要ページ数", en: "Required page count" },
+    name: "update_frequency",
+    type: "select",
+    label: { ja: "想定更新頻度", en: "Expected update frequency" },
+    options: [
+      { value: "rare", label: { ja: "ほぼ固定で運用する", en: "Mostly fixed after launch" } },
+      { value: "monthly", label: { ja: "月1〜2回は更新したい", en: "Monthly updates are needed" } },
+      { value: "frequent", label: { ja: "頻繁に更新・改善したい", en: "Frequent updates and iteration" } },
+    ],
   },
   {
-    name: "budget",
-    type: "text",
-    label: { ja: "希望予算", en: "Preferred budget" },
+    name: "support_scope",
+    type: "select",
+    label: { ja: "必要な支援レベル", en: "Desired support level" },
+    options: [
+      { value: "light", label: { ja: "まずは必要最小限で始めたい", en: "Start lean with essential support" } },
+      { value: "balanced", label: { ja: "設計と運用のバランスを取りたい", en: "Balanced structure and operations" } },
+      { value: "strategic", label: { ja: "改善運用まで厚く伴走してほしい", en: "Need strategic ongoing support" } },
+    ],
   },
   {
     name: "timeline",
     type: "text",
     label: { ja: "希望納期", en: "Desired timeline" },
+  },
+  {
+    name: "required_features",
+    type: "textarea",
+    label: { ja: "必要な機能・要件", en: "Required features and requirements" },
   },
   {
     name: "reference_sites",
@@ -609,6 +654,10 @@ function mapContactFormFields(
     name: field.name,
     type: field.type,
     label: translateText(field.label, locale),
+    options: field.options?.map((option) => ({
+      value: option.value,
+      label: translateText(option.label, locale),
+    })),
   }));
 }
 
@@ -630,4 +679,248 @@ export function getContactInquiryFormFields(locale: Locale) {
 
 export function getContactProjectFormFields(locale: Locale) {
   return mapContactFormFields(contactProjectFieldDefinitions, locale);
+}
+
+function includesAnyKeyword(text: string, keywords: string[]) {
+  return keywords.some((keyword) => text.includes(keyword));
+}
+
+export function getContactProjectRecommendation(
+  locale: Locale,
+  currency: CurrencyCode,
+  values: Record<string, string>,
+): ContactProjectRecommendation {
+  const scores: Record<PlanDefinition["id"], number> = {
+    starter: 0,
+    standard: 1,
+    growth: 0,
+  };
+  const reasons: Record<PlanDefinition["id"], Array<{ weight: number; text: LocalizedText }>> = {
+    starter: [],
+    standard: [],
+    growth: [],
+  };
+
+  const addReason = (
+    planId: PlanDefinition["id"],
+    weight: number,
+    text: LocalizedText,
+  ) => {
+    scores[planId] += weight;
+    reasons[planId].push({ weight, text });
+  };
+
+  switch (values.business_stage) {
+    case "launch":
+      addReason("starter", 2, {
+        ja: "立ち上げ期のため、初動を軽く始めやすい構成が合っています。",
+        en: "You are in a launch stage, so a lean setup is the best starting point.",
+      });
+      break;
+    case "renewal":
+      addReason("standard", 2, {
+        ja: "既存サイトの見直しには、設計と改善のバランスが取りやすい Standard が向いています。",
+        en: "A site renewal fits Standard because it balances redesign structure and operational needs.",
+      });
+      break;
+    case "growth":
+      addReason("growth", 3, {
+        ja: "集客や拡張を強めたい段階なので、改善余地を大きく取れる Growth が有利です。",
+        en: "Growth is the best fit because your focus is on stronger acquisition and expansion.",
+      });
+      break;
+  }
+
+  switch (values.page_scale) {
+    case "small":
+      addReason("starter", 2, {
+        ja: "ページ規模が小さいため、Starter でも必要情報を十分に整理できます。",
+        en: "The page scope is compact, so Starter can cover the required information well.",
+      });
+      break;
+    case "medium":
+      addReason("standard", 2, {
+        ja: "中規模サイトは、構造整理と運用の両立がしやすい Standard が適しています。",
+        en: "A medium-sized site aligns well with Standard for both structure and ongoing operation.",
+      });
+      break;
+    case "large":
+      addReason("growth", 3, {
+        ja: "ページ数が多い構成は、情報設計と更新運用を厚く見られる Growth が向いています。",
+        en: "A larger page scope benefits from Growth because it supports heavier structure and maintenance needs.",
+      });
+      break;
+  }
+
+  switch (values.update_frequency) {
+    case "rare":
+      addReason("starter", 1, {
+        ja: "更新頻度が低めなので、軽い運用前提の Starter と相性が良いです。",
+        en: "Because updates are infrequent, Starter is a natural fit for lean operations.",
+      });
+      break;
+    case "monthly":
+      addReason("standard", 2, {
+        ja: "定期更新があるため、月次で整えやすい Standard が安定します。",
+        en: "Monthly updates make Standard a stable choice for ongoing refinement.",
+      });
+      break;
+    case "frequent":
+      addReason("growth", 3, {
+        ja: "更新頻度が高いので、改善サイクルを回しやすい Growth が最適です。",
+        en: "Frequent updates point to Growth because it supports faster optimization cycles.",
+      });
+      break;
+  }
+
+  switch (values.support_scope) {
+    case "light":
+      addReason("starter", 3, {
+        ja: "必要最小限から始めたい意向なので、Starter がもっとも無理のない導入です。",
+        en: "Starter is the most practical option when you want to begin with essential support only.",
+      });
+      break;
+    case "balanced":
+      addReason("standard", 3, {
+        ja: "設計と運用のバランスを重視しているため、Standard が最も適合します。",
+        en: "Standard fits best because you want a balance between structure design and operations.",
+      });
+      break;
+    case "strategic":
+      addReason("growth", 4, {
+        ja: "改善運用まで伴走が必要なので、支援幅の広い Growth が最適です。",
+        en: "Growth is the strongest fit because you need deeper strategic and operational support.",
+      });
+      break;
+  }
+
+  const mergedText = [
+    values.industry,
+    values.site_objective,
+    values.required_features,
+    values.reference_sites,
+    values.core_value,
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  if (
+    includesAnyKeyword(mergedText, [
+      "ec",
+      "ecommerce",
+      "shop",
+      "予約",
+      "会員",
+      "多言語",
+      "multilingual",
+      "api",
+      "採用",
+      "採用強化",
+    ])
+  ) {
+    addReason("growth", 2, {
+      ja: "要件に拡張性の高い機能が含まれているため、Growth の方が対応幅を持てます。",
+      en: "Your requirements include more advanced capabilities, so Growth provides the right level of flexibility.",
+    });
+  }
+
+  if (
+    includesAnyKeyword(mergedText, [
+      "seo",
+      "branding",
+      "brand",
+      "サービス整理",
+      "コーポレート",
+      "corporate",
+      "lp",
+      "landing",
+    ])
+  ) {
+    addReason("standard", 2, {
+      ja: "訴求整理や導線設計が重要そうなので、Standard のバランス感が活きます。",
+      en: "Standard is a strong fit because your project depends on balanced messaging and journey design.",
+    });
+  }
+
+  if (
+    includesAnyKeyword(mergedText, [
+      "名刺代わり",
+      "シンプル",
+      "small",
+      "minimum",
+      "最小",
+      "one page",
+      "1ページ",
+    ])
+  ) {
+    addReason("starter", 1, {
+      ja: "要件が比較的シンプルなので、Starter でも過不足なく始められます。",
+      en: "The scope appears relatively simple, so Starter can cover it without overbuilding.",
+    });
+  }
+
+  const recommendedPlanId =
+    scores.growth >= scores.standard && scores.growth >= scores.starter
+      ? "growth"
+      : scores.standard >= scores.starter
+        ? "standard"
+        : "starter";
+
+  const defaultReasons: Record<PlanDefinition["id"], LocalizedText[]> = {
+    starter: [
+      {
+        ja: "情報量を絞って素早く立ち上げたい案件に向いています。",
+        en: "It is well suited to projects that need a quick, focused launch.",
+      },
+      {
+        ja: "必要最小限の構成で、無理なく運用を始められます。",
+        en: "It keeps the structure lean so operations can start without unnecessary overhead.",
+      },
+    ],
+    standard: [
+      {
+        ja: "設計の整理と日常運用のバランスがもっとも取りやすいプランです。",
+        en: "It is the most balanced plan for structure design and day-to-day operation.",
+      },
+      {
+        ja: "中規模サイトや改善を見据えた構成に適しています。",
+        en: "It fits especially well for medium-scale sites and steady iterative improvement.",
+      },
+    ],
+    growth: [
+      {
+        ja: "機能要件や更新頻度が高い案件で、対応幅を広く確保できます。",
+        en: "It gives the broadest support range for projects with heavier features and frequent updates.",
+      },
+      {
+        ja: "公開後の改善運用まで視野に入れるなら Growth が最適です。",
+        en: "Growth is the strongest choice when post-launch optimization matters from the start.",
+      },
+    ],
+  };
+
+  const plan = getPlans(locale, currency).find(
+    (item) => item.id === recommendedPlanId,
+  );
+
+  const rankedReasons = reasons[recommendedPlanId]
+    .sort((left, right) => right.weight - left.weight)
+    .map((reason) => translateText(reason.text, locale));
+
+  const recommendationReasons = [
+    ...new Set([
+      ...rankedReasons,
+      ...defaultReasons[recommendedPlanId].map((reason) =>
+        translateText(reason, locale),
+      ),
+    ]),
+  ].slice(0, 3);
+
+  return {
+    planId: recommendedPlanId,
+    planName: plan?.name ?? "",
+    monthlyFee: plan?.monthlyFee ?? "",
+    summary: plan?.summary ?? "",
+    reasons: recommendationReasons,
+  };
 }

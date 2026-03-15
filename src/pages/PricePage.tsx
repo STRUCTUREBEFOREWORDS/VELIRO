@@ -9,6 +9,9 @@ export function PricePage() {
   const plans = getPlans(locale, currency);
   const pricingNotes = getPricingNotes(locale);
   const selectedPlanId = searchParams.get("recommended");
+  const selectedStage = searchParams.get("stage");
+  const selectedSupport = searchParams.get("support");
+  const selectedUpdates = searchParams.get("updates");
 
   const copy = {
     ja: {
@@ -24,7 +27,7 @@ export function PricePage() {
       compareTitle: "プラン比較表",
       compareLead:
         "3つのプランを、公開・運用・集客という役割で横並びに比較できます。迷ったときは、まず役割の違いから見るのが最短です。",
-      selectedLead:
+      selectedLeadDefault:
         "カウンセリングシートの内容をもとに、このプランを中心に比較しやすい状態にしています。",
       rowLabel: "比較項目",
       rows: {
@@ -57,7 +60,7 @@ export function PricePage() {
       compareTitle: "Plan comparison",
       compareLead:
         "Compare the three plans side by side through their actual role: launch, operations, and marketing.",
-      selectedLead:
+      selectedLeadDefault:
         "Based on your counseling sheet inputs, this view is centered on the recommended plan for easier comparison.",
       rowLabel: "Comparison point",
       rows: {
@@ -80,13 +83,47 @@ export function PricePage() {
     },
   }[locale];
 
+  const selectedLead = (() => {
+    if (!selectedPlanId) {
+      return copy.compareLead;
+    }
+
+    if (locale === "ja") {
+      if (selectedStage === "launch") {
+        return "立ち上げ期として入力されているため、まず公開スピードと初動負荷の軽さを軸に比較しやすい状態にしています。";
+      }
+
+      if (selectedSupport === "balanced") {
+        return "設計と運用のバランスを重視する入力だったため、運用の安定感が見えるよう Standard を中心に比較しやすくしています。";
+      }
+
+      if (selectedSupport === "strategic" || selectedUpdates === "frequent") {
+        return "改善運用や更新頻度の高さが見えているため、集客と継続改善まで含めて比較しやすい見せ方にしています。";
+      }
+    } else {
+      if (selectedStage === "launch") {
+        return "Because your inputs point to a launch-stage need, this comparison is framed around speed to launch and lean setup.";
+      }
+
+      if (selectedSupport === "balanced") {
+        return "Because your inputs emphasize balanced structure and operations, this comparison is centered on operational stability.";
+      }
+
+      if (selectedSupport === "strategic" || selectedUpdates === "frequent") {
+        return "Because your inputs suggest heavier iteration and growth needs, this comparison is framed around marketing and ongoing optimization.";
+      }
+    }
+
+    return copy.selectedLeadDefault;
+  })();
+
   const comparisonRows = {
     starter: {
       role: locale === "ja" ? "公開" : "Launch",
       bestFor:
         locale === "ja"
-          ? "まずはサイトを公開したい事業"
-          : "Businesses that need to launch a site quickly",
+          ? "小規模事業、個人事務所、名刺代わりのサイト公開"
+          : "Small businesses, solo offices, and first corporate website launches",
       pageScale: locale === "ja" ? "最大5ページ" : "Up to 5 pages",
       updates: locale === "ja" ? "月2回まで" : "Up to 2 times / month",
       analytics: locale === "ja" ? "基本なし" : "Not included",
@@ -97,8 +134,8 @@ export function PricePage() {
       role: locale === "ja" ? "運用" : "Operations",
       bestFor:
         locale === "ja"
-          ? "公開後も整えながら運用したい事業"
-          : "Businesses that want stable post-launch operations",
+          ? "コーポレートサイト、サービス紹介、公開後も改善したい事業"
+          : "Corporate sites, service pages, and businesses improving after launch",
       pageScale: locale === "ja" ? "最大8ページ" : "Up to 8 pages",
       updates: locale === "ja" ? "月4回まで" : "Up to 4 times / month",
       analytics:
@@ -113,8 +150,8 @@ export function PricePage() {
       role: locale === "ja" ? "集客" : "Marketing",
       bestFor:
         locale === "ja"
-          ? "SEO改善と集客を回したい事業"
-          : "Businesses using the site for SEO and acquisition",
+          ? "SEO強化、集客導線、改善運用を回したい事業"
+          : "Businesses focused on SEO growth, acquisition flow, and ongoing optimization",
       pageScale: locale === "ja" ? "最大12ページ" : "Up to 12 pages",
       updates: locale === "ja" ? "月8回まで" : "Up to 8 times / month",
       analytics:
@@ -214,6 +251,19 @@ export function PricePage() {
                   </div>
                 ))}
               </div>
+              <div className="mt-6">
+                <Link
+                  to={`/contact?recommended=${plan.id}`}
+                  className={[
+                    "inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm tracking-[0.14em] transition sm:w-fit",
+                    selectedPlanId === plan.id
+                      ? "border border-emerald-300/40 bg-emerald-300/90 text-black shadow-[0_0_30px_rgba(52,211,153,0.24)] hover:-translate-y-1"
+                      : "border border-white/10 bg-white/5 text-white/75 hover:border-white/25 hover:text-white hover:-translate-y-1",
+                  ].join(" ")}
+                >
+                  {copy.ctaButton}
+                </Link>
+              </div>
             </article>
           ))}
         </div>
@@ -223,7 +273,7 @@ export function PricePage() {
             {copy.compareTitle}
           </p>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-white/65">
-            {selectedPlanId ? copy.selectedLead : copy.compareLead}
+            {selectedLead}
           </p>
 
           <div className="mt-8 hidden overflow-hidden rounded-[1.8rem] border border-white/10 lg:block">
@@ -247,9 +297,8 @@ export function PricePage() {
               ))}
 
               {rowOrder.map((rowKey) => (
-                <>
+                <div key={`row-${rowKey}`} className="contents">
                   <div
-                    key={`label-${rowKey}`}
                     className="border-b border-white/10 px-5 py-4 text-sm text-white/60"
                   >
                     {copy.rows[rowKey]}
@@ -265,7 +314,7 @@ export function PricePage() {
                       {comparisonRows[plan.id][rowKey]}
                     </div>
                   ))}
-                </>
+                </div>
               ))}
             </div>
           </div>

@@ -116,6 +116,29 @@ export function ContactPage() {
     return getContactProjectRecommendation(locale, currency, projectValues);
   }, [activeTab, currency, locale, projectValues]);
 
+  const comparisonQuery = useMemo(() => {
+    if (!recommendation) {
+      return "";
+    }
+
+    const params = new URLSearchParams();
+    params.set("recommended", recommendation.planId);
+
+    if (projectValues.business_stage) {
+      params.set("stage", projectValues.business_stage);
+    }
+
+    if (projectValues.support_scope) {
+      params.set("support", projectValues.support_scope);
+    }
+
+    if (projectValues.update_frequency) {
+      params.set("updates", projectValues.update_frequency);
+    }
+
+    return params.toString();
+  }, [projectValues.business_stage, projectValues.support_scope, projectValues.update_frequency, recommendation]);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -328,7 +351,7 @@ export function ContactPage() {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <Link
-                    to={`/price?recommended=${recommendation.planId}`}
+                    to={`/price?${comparisonQuery}`}
                     className="secondary-button"
                   >
                     {copy.recommendation.compareButton}

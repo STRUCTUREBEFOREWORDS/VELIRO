@@ -18,7 +18,6 @@ type PlanDefinition = {
   summary: LocalizedText;
   label: LocalizedText;
   recommended?: boolean;
-  setupFeeJpy: number;
   monthlyFeeJpy: number;
   minimumContractMonths: number;
   features: LocalizedText[];
@@ -30,10 +29,8 @@ export type Plan = {
   summary: string;
   label: string;
   recommended: boolean;
-  setupFee: string;
   monthlyFee: string;
   minimumContract: string;
-  minimumTotal: string;
   features: string[];
 };
 
@@ -183,7 +180,6 @@ const planDefinitions: PlanDefinition[] = [
       en: "For businesses that want to start a website with the lowest upfront cost.",
     },
     label: { ja: "Low Entry", en: "Low Entry" },
-    setupFeeJpy: 0,
     monthlyFeeJpy: 10000,
     minimumContractMonths: 6,
     features: [
@@ -205,13 +201,12 @@ const planDefinitions: PlanDefinition[] = [
     id: "standard",
     name: { ja: "Standard Plan", en: "Standard Plan" },
     summary: {
-      ja: "制作費を支払って、しっかりサイトを作りたい方向け。",
-      en: "For businesses that want a more complete site with a production fee up front.",
+      ja: "更新頻度と機能の厚みをバランスよく整えたい方向け。",
+      en: "For businesses that want balanced support across features and update volume.",
     },
     label: { ja: "おすすめ", en: "Recommended" },
     recommended: true,
-    setupFeeJpy: 50000,
-    monthlyFeeJpy: 10000,
+    monthlyFeeJpy: 15000,
     minimumContractMonths: 6,
     features: [
       {
@@ -238,8 +233,7 @@ const planDefinitions: PlanDefinition[] = [
       en: "An upper-tier plan built for businesses preparing for growth.",
     },
     label: { ja: "Scale", en: "Scale" },
-    setupFeeJpy: 100000,
-    monthlyFeeJpy: 15000,
+    monthlyFeeJpy: 20000,
     minimumContractMonths: 6,
     features: [
       {
@@ -268,17 +262,11 @@ export function getPlans(locale: Locale, currency: CurrencyCode): Plan[] {
     summary: translateText(plan.summary, locale),
     label: translateText(plan.label, locale),
     recommended: Boolean(plan.recommended),
-    setupFee: formatPrice(plan.setupFeeJpy, currency, locale),
     monthlyFee: formatPrice(plan.monthlyFeeJpy, currency, locale),
     minimumContract:
       locale === "ja"
         ? `${plan.minimumContractMonths}ヶ月`
         : `${plan.minimumContractMonths} months`,
-    minimumTotal: formatPrice(
-      plan.setupFeeJpy + plan.monthlyFeeJpy * plan.minimumContractMonths,
-      currency,
-      locale,
-    ),
     features: plan.features.map((feature) => translateText(feature, locale)),
   }));
 }

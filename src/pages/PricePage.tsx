@@ -14,9 +14,7 @@ export function PricePage() {
       title: "選びやすく、続けやすい3つの料金プラン。",
       lead: "Starter、Standard、Growth の順に、入口の低さ、制作の厚み、成長対応を分けた構成です。Standard は最も選ばれやすい中間プランとして設計しています。",
       monthlyFee: "月額",
-      setupFee: "初期費用 / 制作費",
       minimumContract: "最低契約期間",
-      minimumTotal: "最低支払総額",
       included: "含まれる内容",
       recommendation: "おすすめ",
       noteTitle: "ご確認事項",
@@ -33,9 +31,7 @@ export function PricePage() {
       title: "Three plans designed to be easy to compare and easy to choose.",
       lead: "Starter, Standard, and Growth are structured around low entry cost, stronger production support, and growth-oriented operations. Standard is positioned as the most balanced middle option.",
       monthlyFee: "Monthly fee",
-      setupFee: "Upfront / production fee",
       minimumContract: "Minimum term",
-      minimumTotal: "Minimum total",
       included: "Included",
       recommendation: "Recommended",
       noteTitle: "Important notes",
@@ -105,26 +101,10 @@ export function PricePage() {
                 </div>
                 <div className="rounded-[1.5rem] border border-white/10 bg-black/10 px-5 py-4">
                   <p className="text-xs uppercase tracking-[0.22em] text-white/45">
-                    {copy.setupFee}
-                  </p>
-                  <p className="mt-3 text-3xl font-medium text-white">
-                    {plan.setupFee}
-                  </p>
-                </div>
-                <div className="rounded-[1.5rem] border border-white/10 bg-black/10 px-5 py-4">
-                  <p className="text-xs uppercase tracking-[0.22em] text-white/45">
                     {copy.minimumContract}
                   </p>
                   <p className="mt-3 text-xl font-medium text-white">
                     {plan.minimumContract}
-                  </p>
-                </div>
-                <div className="rounded-[1.5rem] border border-white/10 bg-black/10 px-5 py-4">
-                  <p className="text-xs uppercase tracking-[0.22em] text-white/45">
-                    {copy.minimumTotal}
-                  </p>
-                  <p className="mt-3 text-xl font-medium text-white">
-                    {plan.minimumTotal}
                   </p>
                 </div>
               </div>

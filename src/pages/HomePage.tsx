@@ -843,8 +843,8 @@ export function HomePage() {
                   <p className="mt-4 text-sm leading-7 text-white/65">
                     {plan.summary}
                   </p>
-                  <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-[1.4rem] border border-white/10 px-4 py-4">
+                  <div className="mt-6 rounded-[1.4rem] border border-white/10 px-4 py-4">
+                    <div>
                       <p className="text-[0.68rem] uppercase tracking-[0.2em] text-white/45">
                         {locale === "ja" ? "月額" : "Monthly"}
                       </p>
@@ -852,25 +852,7 @@ export function HomePage() {
                         {plan.monthlyFee}
                       </p>
                     </div>
-                    <div className="rounded-[1.4rem] border border-white/10 px-4 py-4">
-                      <p className="text-[0.68rem] uppercase tracking-[0.2em] text-white/45">
-                        {locale === "ja"
-                          ? "初期費用 / 制作費"
-                          : "Upfront / Production"}
-                      </p>
-                      <p className="mt-2 text-2xl font-medium text-white">
-                        {plan.setupFee}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-6 rounded-[1.4rem] border border-white/10 px-4 py-4 text-sm text-white/70">
-                    <span className="text-white/45">
-                      {locale === "ja" ? "最低支払総額" : "Minimum total"}
-                    </span>
-                    <p className="mt-2 text-xl font-medium text-white">
-                      {plan.minimumTotal}
-                    </p>
-                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-cyan-300">
+                    <p className="mt-3 text-xs uppercase tracking-[0.18em] text-cyan-300">
                       {plan.minimumContract}
                     </p>
                   </div>

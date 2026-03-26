@@ -64,7 +64,90 @@
 </section>
 
 
-<!-- ─── ② PROBLEM ─── -->
+<!-- ─── ② ANALYZE ─── -->
+<section id="analyze">
+  <div class="wrap">
+
+    <span class="eyebrow tc reveal">Free Analysis</span>
+    <h2 class="tc reveal d1">あなたのサイトを<br>今すぐ無料診断</h2>
+    <p class="analyze-sub tc reveal d2">URLを入力するだけで、信頼構造の問題点をスコアで可視化します。</p>
+
+    <div class="analyze-form reveal d3">
+      <input type="url" id="analyze-url" placeholder="https://example.com" autocomplete="off" spellcheck="false">
+      <button id="analyze-btn" class="btn btn-primary" type="button">診断する</button>
+    </div>
+    <p id="analyze-error" class="analyze-error"></p>
+
+  </div>
+</section>
+
+
+<!-- ─── RESULTS (hidden initially) ─── -->
+<section id="results" style="display:none;">
+  <div class="wrap">
+
+    <span class="eyebrow tc">Analysis Result</span>
+    <h2 class="tc">診断結果</h2>
+
+    <div class="result-score-wrap">
+      <div class="result-total">
+        <div class="result-total-label">総合スコア</div>
+        <div class="result-total-num-row">
+          <span id="result-total-num">—</span>
+          <span class="result-total-max">/ 100</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-axes">
+      <div class="axis-item">
+        <span class="axis-label">視覚フロー</span>
+        <div class="axis-bar"><div id="bar-visual" class="axis-fill" style="width:0%"></div></div>
+        <span id="val-visual" class="axis-val">—</span>
+      </div>
+      <div class="axis-item">
+        <span class="axis-label">認知負荷</span>
+        <div class="axis-bar"><div id="bar-cognitive" class="axis-fill" style="width:0%"></div></div>
+        <span id="val-cognitive" class="axis-val">—</span>
+      </div>
+      <div class="axis-item">
+        <span class="axis-label">信頼</span>
+        <div class="axis-bar"><div id="bar-trust" class="axis-fill" style="width:0%"></div></div>
+        <span id="val-trust" class="axis-val">—</span>
+      </div>
+      <div class="axis-item">
+        <span class="axis-label">一貫性</span>
+        <div class="axis-bar"><div id="bar-consistency" class="axis-fill" style="width:0%"></div></div>
+        <span id="val-consistency" class="axis-val">—</span>
+      </div>
+      <div class="axis-item">
+        <span class="axis-label">CTA</span>
+        <div class="axis-bar"><div id="bar-cta" class="axis-fill" style="width:0%"></div></div>
+        <span id="val-cta" class="axis-val">—</span>
+      </div>
+    </div>
+
+    <div class="result-lists">
+      <div class="result-col">
+        <h3>発見された問題点</h3>
+        <ul id="result-issues" class="result-list"></ul>
+      </div>
+      <div class="result-col">
+        <h3>改善提案</h3>
+        <ul id="result-improvements" class="result-list improvements-list"></ul>
+      </div>
+    </div>
+
+    <div class="tc" style="margin-top:56px;">
+      <a href="#" class="btn btn-primary" data-cta=""
+         style="font-size:15px;padding:16px 44px;">この結果をもとに相談する</a>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ─── ③ PROBLEM ─── -->
 <section id="problem">
   <div class="wrap">
 
@@ -216,6 +299,21 @@
 <!-- ─── ⑤ TRUST ─── -->
 <section id="trust">
   <div class="wrap">
+    <div class="stat-grid reveal">
+      <div class="stat-item">
+        <span class="stat-num">1,200+</span>
+        <span class="stat-label">サイト診断実績</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">3.2x</span>
+        <span class="stat-label">平均CVR改善率</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">98%</span>
+        <span class="stat-label">クライアント満足度</span>
+      </div>
+    </div>
+
     <div class="philosophy">
       <div class="section-div reveal"></div>
       <blockquote class="reveal d1">

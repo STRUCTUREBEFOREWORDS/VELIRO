@@ -590,3 +590,130 @@ async def admin_mark_reviewed(user_id: int, x_admin_secret: str = Header(None)):
         raise HTTPException(404, "No counseling answer found for this user")
 
     return {"success": True}
+
+
+# ─────────────────────────────────────────────
+# POST /analyze  (public — site trust analyzer)
+# ─────────────────────────────────────────────
+import re
+
+class AnalyzeBody(BaseModel):
+    url: str
+
+def _analyze_html(html: str, is_https: bool) -> dict:
+    h = html.lower()
+
+    # ── Visual flow ──
+    has_h1   = bool(re.search(r'<h1[\s>]', h))
+    has_h2   = bool(re.search(r'<h2[\s>]', h))
+    has_nav  = bool(re.search(r'<nav[\s>]', h))
+    sections = len(re.findall(r'<section[\s>]', h))
+    h_count  = len(re.findall(r'<h[1-6][\s>]', h))
+    visual = 0
+    if has_h1:        visual += 35
+    if has_h2:        visual += 20
+    if has_nav:       visual += 20
+    if sections >= 2: visual += 15
+    if h_count >= 4:  visual += 10
+
+    # ── Cognitive load (lower load = higher score) ──
+    total_links = len(re.findall(r'<a[\s>]', h))
+    word_count  = len(re.sub(r'<[^>]+>', ' ', html).split())
+    cognitive   = 80
+    if total_links > 50:    cognitive -= 20
+    elif total_links > 30:  cognitive -= 10
+    if word_count > 2000:   cognitive -= 20
+    elif word_count > 1000: cognitive -= 10
+
+    # ── Trust ──
+    has_contact = bool(re.search(r'(contact|お問い合わせ|連絡|tel:|mail:|email:)', h))
+    has_privacy = bool(re.search(r'(privacy|プライバシー)', h))
+    has_proof   = bool(re.search(r'(testimonial|review|レビュー|口コミ|お客様の声|実績|導入事例)', h))
+    has_copy    = bool(re.search(r'©|copyright', h))
+    trust = 0
+    if is_https:    trust += 30
+    if has_contact: trust += 25
+    if has_privacy: trust += 20
+    if has_proof:   trust += 15
+    if has_copy:    trust += 10
+
+    # ── Consistency ──
+    has_header = bool(re.search(r'<header[\s>]', h))
+    has_footer = bool(re.search(r'<footer[\s>]', h))
+    has_main   = bool(re.search(r'<main[\s>]', h))
+    has_css    = bool(re.search(r'<link[^>]+stylesheet', h))
+    consistency = 20
+    if has_header: consistency += 20
+    if has_main:   consistency += 20
+    if has_footer: consistency += 20
+    if has_css:    consistency += 20
+
+    # ── CTA ──
+    btn_count = len(re.findall(r'<button[\s>]', h))
+    has_form  = bool(re.search(r'<form[\s>]', h))
+    has_cta   = bool(re.search(r'(無料|申し込|お問い合わせ|相談|sign.?up|get.?start|contact|register|try)', h))
+    cta = 0
+    if btn_count > 0:      cta += 25
+    if has_form:           cta += 30
+    if has_cta:            cta += 30
+    if 0 < btn_count <= 5: cta += 15
+
+    def clamp(v): return min(100, max(0, v))
+    visual, cognitive, trust, consistency, cta = map(clamp, [visual, cognitive, trust, consistency, cta])
+    total = round((visual + cognitive + trust + consistency + cta) / 5)
+
+    issues = []
+    if not has_h1:
+        issues.append({"problem": "H1タグが存在しない — 視覚的な起点が欠如している"})
+    if not is_https:
+        issues.append({"problem": "HTTPS非対応 — ブラウザに「安全でない」と表示され信頼を損なう"})
+    if not has_contact:
+        issues.append({"problem": "連絡先情報が見つからない — 訪問者は行動に移れない"})
+    if not has_privacy:
+        issues.append({"problem": "プライバシーポリシーが未設置 — 法的リスクと信頼低下"})
+    if not has_proof:
+        issues.append({"problem": "社会的証明（口コミ・実績・導入事例）が欠如している"})
+    if total_links > 40:
+        issues.append({"problem": f"リンク数が過多（{total_links}個）— 認知負荷が高く離脱を招く"})
+    if cta < 40:
+        issues.append({"problem": "明確なCTAが設計されていない — ユーザーを行動に誘導できていない"})
+
+    improvements = []
+    if not has_h1:
+        improvements.append({"action": "H1で価値提案を1文に圧縮して配置する", "impact": "訪問者の理解速度が上がりCVRが改善"})
+    if not has_proof:
+        improvements.append({"action": "顧客の声・実績・導入事例を最低1件追加する", "impact": "信頼スコアが直接向上しコンバージョン率が改善"})
+    if not has_contact:
+        improvements.append({"action": "問い合わせフォームまたはメールアドレスを追加する", "impact": "行動の障壁が消え問い合わせ数が増加"})
+    if not has_privacy:
+        improvements.append({"action": "プライバシーポリシーをフッターに設置する", "impact": "法的コンプライアンス達成と信頼強化"})
+    if cta < 40:
+        improvements.append({"action": "ファーストビューと最終セクションにCTAを1つずつ配置する", "impact": "問い合わせ数が最大3倍改善するケースがある"})
+    improvements.append({"action": "各セクションを1つのメッセージに絞り余白を広く取る", "impact": "読了率向上・認知負荷低減・信頼感が増す"})
+
+    return {
+        "total_score": total,
+        "scores": {
+            "visual_flow":    visual,
+            "cognitive_load": cognitive,
+            "trust":          trust,
+            "consistency":    consistency,
+            "cta":            cta,
+        },
+        "issues":       issues[:5],
+        "improvements": improvements[:5],
+    }
+
+@app.post("/analyze")
+async def analyze_site(body: AnalyzeBody):
+    url = body.url.strip()
+    if not url.startswith(("http://", "https://")):
+        raise HTTPException(400, "URLはhttp://またはhttps://で始まる必要があります")
+    try:
+        async with httpx.AsyncClient(follow_redirects=True, timeout=10.0) as client:
+            resp = await client.get(url, headers={"User-Agent": "arcwove-analyzer/1.0"})
+            html = resp.text
+            is_https = str(resp.url).startswith("https://")
+    except Exception as exc:
+        raise HTTPException(422, f"サイトを取得できませんでした: {str(exc)[:120]}")
+    return _analyze_html(html, is_https)

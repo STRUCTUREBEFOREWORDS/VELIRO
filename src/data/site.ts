@@ -266,6 +266,7 @@ const planDefinitions: PlanDefinition[] = [
       },
       { ja: "レスポンシブ対応", en: "Responsive support" },
       { ja: "SEO対策", en: "SEO implementation" },
+      { ja: "修正（月4回まで）", en: "Revisions up to four times per month" },
       { ja: "キーワード分析", en: "Keyword analysis" },
       { ja: "SEOレポート（月1回）", en: "Monthly SEO report" },
       {

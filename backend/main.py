@@ -18,8 +18,14 @@ Endpoints:
 import json
 import os
 import secrets
+import threading
 import httpx
 from dotenv import load_dotenv
+from pathlib import Path
+
+_LOGS_DIR = Path(__file__).parent / "logs"
+_LOGS_DIR.mkdir(exist_ok=True)
+_LOG_LOCK = threading.Lock()
 
 load_dotenv()
 from datetime import datetime, timedelta, timezone
@@ -329,6 +335,7 @@ class CheckoutRequest(BaseModel):
     currency: str       # JPY | USD
     locale: str         # ja | en | es | fr | ko | zh-hans
     client_type: str    # individual | corporate
+    consented_at: str | None = None  # ISO8601 timestamp of consent
 
 
 class CounselingSubmit(BaseModel):
@@ -349,10 +356,28 @@ async def health():
     return {"status": "ok"}
 
 # ─────────────────────────────────────────────
+# Consent log helper
+# ─────────────────────────────────────────────
+_CONSENT_TEXT = (
+    "6ヶ月契約（自動更新あり）・途中解約による返金なし・"
+    "修正回数：月4回まで・修正はまとめて提出（分割は別カウント）"
+)
+
+def _write_consent_log(entry: dict) -> None:
+    log_path = _LOGS_DIR / "consent_log.json"
+    with _LOG_LOCK:
+        try:
+            existing: list = json.loads(log_path.read_text(encoding="utf-8")) if log_path.exists() else []
+        except Exception:
+            existing = []
+        existing.append(entry)
+        log_path.write_text(json.dumps(existing, ensure_ascii=False, indent=2), encoding="utf-8")
+
+# ─────────────────────────────────────────────
 # POST /api/checkout/session
 # ─────────────────────────────────────────────
 @app.post("/api/checkout/session")
-async def create_checkout_session(req: CheckoutRequest):
+async def create_checkout_session(req: CheckoutRequest, request: Request):
     if req.plan_id not in PRICE_IDS:
         raise HTTPException(400, "Invalid plan_id")
     if req.currency not in ("JPY", "USD"):
@@ -362,6 +387,19 @@ async def create_checkout_session(req: CheckoutRequest):
     if not price_id:
         raise HTTPException(400, "Price not configured for this plan/currency")
 
+    # Save consent log
+    if req.consented_at:
+        _write_consent_log({
+            "consented_at": req.consented_at,
+            "plan_id":      req.plan_id,
+            "currency":     req.currency,
+            "locale":       req.locale,
+            "client_type":  req.client_type,
+            "consent_text": _CONSENT_TEXT,
+            "user_agent":   request.headers.get("user-agent", ""),
+            "ip":           request.headers.get("x-forwarded-for", request.client.host if request.client else ""),
+        })
+
     session = stripe.checkout.Session.create(
         mode="subscription",
         payment_method_types=["card"],
@@ -369,10 +407,11 @@ async def create_checkout_session(req: CheckoutRequest):
         success_url=f"{FRONTEND_URL}/payment/success?session_id={{CHECKOUT_SESSION_ID}}",
         cancel_url=f"{FRONTEND_URL}/price",
         metadata={
-            "plan_id":     req.plan_id,
-            "currency":    req.currency,
-            "locale":      req.locale,
-            "client_type": req.client_type,
+            "plan_id":      req.plan_id,
+            "currency":     req.currency,
+            "locale":       req.locale,
+            "client_type":  req.client_type,
+            "consented_at": req.consented_at or "",
         },
         locale=req.locale if req.locale in ("ja", "en", "es", "fr", "ko", "zh") else "auto",
     )
@@ -440,10 +479,53 @@ async def stripe_webhook(request: Request, stripe_signature: str = Header(None))
     form_url     = f"{FRONTEND_URL}/counseling?token={user['form_token']}"
     tpl          = _email_content(locale, form_url, deadline_str, plan_id)
 
+    # ① カウンセリングフォーム案内メール
     try:
         await send_email(email, tpl["subject"], tpl["body"])
     except Exception as exc:
         print(f"[email error] {exc}")
+
+    # ② 契約確認メール（チャージバック対策）
+    plan_labels_ja = {"starter": "Starter プラン（¥10,000/月）", "standard": "Standard プラン（¥15,000/月）", "growth": "Growth プラン（¥20,000/月）"}
+    plan_label = plan_labels_ja.get(plan_id, plan_id)
+    next_billing = (datetime.now(timezone.utc) + timedelta(days=30)).strftime("%Y-%m-%d")
+    contract_body = f"""ご契約内容のご確認（ARCWOVE）
+
+この度はARCWOVEをご利用いただきありがとうございます。
+以下のとおり契約が成立しました。本メールは法的証拠として保存されます。
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+契約プラン    ： {plan_label}
+契約期間      ： 6ヶ月（自動更新あり）
+次回更新日    ： {next_billing}（目安）
+修正回数      ： 月4回まで
+修正ルール    ： まとめ提出 / 分割提出は別カウント
+返金          ： 制作開始後不可
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+利用規約（特定商取引法に基づく表記）：
+https://www.arcwove.com/legal.html
+
+本メールは契約内容の記録として保存されます。
+ご不明な点は info@arcwove.com までご連絡ください。
+
+─────────────────────────
+ARCWOVE
+{FROM_EMAIL}
+─────────────────────────
+"""
+    try:
+        await send_email(email, "ご契約内容のご確認（ARCWOVE）", contract_body)
+        # 送信ログ保存
+        _write_consent_log({
+            "type":          "contract_email_sent",
+            "sent_at":       datetime.now(timezone.utc).isoformat(),
+            "to":            email,
+            "plan_id":       plan_id,
+            "next_billing":  next_billing,
+        })
+    except Exception as exc:
+        print(f"[contract email error] {exc}")
 
     return {"received": True}
 

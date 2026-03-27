@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist-ssr
 *.local
+.env
 
 # Backend
 backend/venv/
@@ -33,3 +34,4 @@ extension/
 *.njsproj
 *.sln
 *.sw?
+backend/logs/consent_log.json

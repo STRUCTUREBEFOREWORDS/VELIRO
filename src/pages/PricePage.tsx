@@ -11,6 +11,7 @@ export function PricePage() {
   const [searchParams] = useSearchParams();
   const [clientType, setClientType] = useState<"individual" | "corporate">("individual");
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [consented, setConsented] = useState(false);
   const plans = getPlans(locale, currency);
   const pricingNotes = getPricingNotes(locale);
 
@@ -26,6 +27,7 @@ export function PricePage() {
           currency,
           locale,
           client_type: clientType,
+          consented_at: new Date().toISOString(),
         }),
       });
       if (!resp.ok) throw new Error();
@@ -394,6 +396,47 @@ export function PricePage() {
           </div>
         </div>
 
+        {/* Consent checkbox — required before checkout */}
+        <div className="mt-8 rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 md:p-6">
+          <label className="flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              checked={consented}
+              onChange={(e) => setConsented(e.target.checked)}
+              className="mt-1 h-4 w-4 flex-shrink-0 accent-cyan-300"
+            />
+            <span className="text-sm leading-7 text-white/65">
+              {locale === "ja" ? (
+                <>
+                  本サービスは以下の条件で提供されます：6ヶ月契約（自動更新あり）・途中解約による返金なし・修正回数：月4回まで・修正はまとめて提出（分割は別カウント）。{" "}
+                  <a
+                    href="/legal.html"
+                    target="_blank"
+                    rel="noopener"
+                    className="text-cyan-300 underline underline-offset-2"
+                  >
+                    利用規約（特定商取引法に基づく表記）
+                  </a>{" "}
+                  に同意の上、お申し込みください。
+                </>
+              ) : (
+                <>
+                  This service is provided under the following terms: 6-month contract (auto-renewing), no refunds after cancellation, revisions up to 4 times per month (batch submission required; split submissions count separately).{" "}
+                  <a
+                    href="/legal.html"
+                    target="_blank"
+                    rel="noopener"
+                    className="text-cyan-300 underline underline-offset-2"
+                  >
+                    Terms of Service
+                  </a>{" "}
+                  — by proceeding you agree to these terms.
+                </>
+              )}
+            </span>
+          </label>
+        </div>
+
         <div className="mt-8 grid gap-6 xl:grid-cols-3">
           {plans.map((plan) => (
             <article
@@ -464,12 +507,13 @@ export function PricePage() {
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <button
                   onClick={() => handleCheckout(plan.id)}
-                  disabled={checkoutLoading === plan.id}
+                  disabled={checkoutLoading === plan.id || !consented}
+                  title={!consented ? (locale === "ja" ? "利用規約に同意してください" : "Please agree to the terms") : undefined}
                   className={[
                     "inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm tracking-[0.14em] transition sm:w-fit",
                     selectedPlanId === plan.id
-                      ? "border border-emerald-300/40 bg-emerald-300/90 text-black shadow-[0_0_30px_rgba(52,211,153,0.24)] hover:-translate-y-1 disabled:opacity-60"
-                      : "primary-button disabled:opacity-60",
+                      ? "border border-emerald-300/40 bg-emerald-300/90 text-black shadow-[0_0_30px_rgba(52,211,153,0.24)] hover:-translate-y-1 disabled:opacity-60 disabled:cursor-not-allowed"
+                      : "primary-button disabled:opacity-40 disabled:cursor-not-allowed",
                   ].join(" ")}
                 >
                   {checkoutLoading === plan.id

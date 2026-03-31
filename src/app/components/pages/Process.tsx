@@ -90,8 +90,8 @@ export const Process = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: easing }}
           >
-            <h1 className="fs-h1 tracking-[0.5em] uppercase mb-8">Process</h1>
-            <p className="fs-base font-light text-white/40 tracking-[0.3em]">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl tracking-[0.5em] uppercase mb-8">Process</h1>
+            <p className="text-sm sm:text-base font-light text-white/40 tracking-[0.3em]">
               思想が形になるまでの厳格なプロセス。
             </p>
           </motion.div>
@@ -120,8 +120,8 @@ const StepDiscovery = ({ scrollProgress, step }: any) => {
           <div className="text-[10px] tracking-[0.8em] text-white/20 uppercase mb-6">
             Step {step.id}
           </div>
-          <h2 className="fs-h2 tracking-[0.4em] uppercase mb-8">{step.title}</h2>
-          <p className="text-base font-light text-white/50 tracking-[0.2em] leading-relaxed">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl tracking-[0.4em] uppercase mb-8">{step.title}</h2>
+          <p className="text-sm sm:text-base font-light text-white/50 tracking-[0.2em] leading-relaxed">
             {step.desc}
           </p>
         </motion.div>
@@ -163,8 +163,8 @@ const StepStructure = ({ scrollProgress, step }: any) => {
           <div className="text-[10px] tracking-[0.8em] text-white/20 uppercase mb-6">
             Step {step.id}
           </div>
-          <h2 className="fs-h2 tracking-[0.4em] uppercase mb-8">{step.title}</h2>
-          <p className="text-lg font-light text-white/70 tracking-[0.15em] leading-relaxed mb-8">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl tracking-[0.4em] uppercase mb-8">{step.title}</h2>
+          <p className="text-base sm:text-lg md:text-xl font-light text-white/70 tracking-[0.15em] leading-relaxed mb-8">
             {step.subtitle}
           </p>
           <p className="text-sm font-light text-white/40 tracking-[0.2em] leading-relaxed">
@@ -198,8 +198,8 @@ const StepDesign = ({ scrollProgress, step }: any) => {
             <div className="text-[10px] tracking-[0.8em] text-white/20 uppercase mb-6">
               Step {step.id}
             </div>
-            <h2 className="fs-h2 tracking-[0.4em] uppercase mb-12">{step.title}</h2>
-            <p className="text-xl font-light text-white/80 tracking-[0.15em] leading-relaxed mb-6 max-w-3xl mx-auto">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl tracking-[0.4em] uppercase mb-12">{step.title}</h2>
+            <p className="text-lg sm:text-xl font-light text-white/80 tracking-[0.15em] leading-relaxed mb-6 max-w-3xl mx-auto">
               {step.subtitle}
             </p>
             <p className="text-sm font-light text-white/40 tracking-[0.2em]">
@@ -232,8 +232,8 @@ const StepBuild = ({ scrollProgress, step }: any) => {
           <div className="text-[10px] tracking-[0.8em] text-white/20 uppercase mb-6">
             Step {step.id}
           </div>
-          <h2 className="fs-h2 tracking-[0.4em] uppercase mb-12">{step.title}</h2>
-          <p className="text-xl font-light text-white/80 tracking-[0.15em] leading-relaxed mb-6">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl tracking-[0.4em] uppercase mb-12">{step.title}</h2>
+          <p className="text-lg sm:text-xl font-light text-white/80 tracking-[0.15em] leading-relaxed mb-6">
             {step.subtitle}
           </p>
           <p className="text-sm font-light text-white/40 tracking-[0.2em]">
@@ -261,9 +261,9 @@ const StepDeploy = ({ scrollProgress, step }: any) => {
           <div className="text-[10px] tracking-[0.8em] text-white/20 uppercase mb-6">
             Step {step.id}
           </div>
-          <h2 className="fs-h1 tracking-[0.5em] uppercase mb-12">{step.title}</h2>
+          <h2 className="text-5xl sm:text-6xl md:text-7xl tracking-[0.5em] uppercase mb-12">{step.title}</h2>
           <motion.p
-            className="text-4xl font-light tracking-[0.2em] leading-relaxed"
+            className="text-2xl sm:text-3xl md:text-4xl font-light tracking-[0.2em] leading-relaxed"
             style={{ color }}
           >
             {step.subtitle}

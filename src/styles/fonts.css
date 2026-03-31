@@ -53,16 +53,18 @@
   --lh-loose:  1.7;
 }
 
-/* ── グローバルフォント適用 ──────────────────────────────────────────────── */
-body {
-  font-family: var(--font-body);
-  font-size: var(--fs-base);
-  line-height: var(--lh-loose);
-}
+/* ── グローバルフォント適用 (@layer base に入れることでTailwindユーティリティが上書き可能) */
+@layer base {
+  body {
+    font-family: var(--font-body);
+    font-size: var(--fs-base);
+    line-height: var(--lh-loose);
+  }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
-  line-height: var(--lh-tight);
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    line-height: var(--lh-tight);
+  }
 }
 
 /* ── Fluid utility classes (@layer utilities で Tailwind と共存) ─────────── */

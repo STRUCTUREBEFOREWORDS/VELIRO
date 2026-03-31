@@ -2,19 +2,23 @@ import { useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'motion/react';
 import { Layout, Section, AxisLine, WireframeButton } from '../Common';
 import { WireframeBackground } from '../WireframeBackground';
+import { useApp } from '../../context/AppContext';
 
 // ── 共通フィールドコンポーネント ────────────────────────────────────────────
 
-const FieldLabel = ({ children, required }: { children: React.ReactNode; required?: boolean }) => (
-  <div className="flex items-center gap-3 mb-3">
-    <span className="text-[10px] tracking-[0.6em] text-white/40 uppercase">{children}</span>
-    {required && (
-      <span className="text-[8px] tracking-[0.4em] text-[#00ffff]/60 uppercase border border-[#00ffff]/20 px-1.5 py-0.5">
-        必須
-      </span>
-    )}
-  </div>
-);
+const FieldLabel = ({ children, required }: { children: React.ReactNode; required?: boolean }) => {
+  const { t } = useApp();
+  return (
+    <div className="flex items-center gap-3 mb-3">
+      <span className="text-[10px] tracking-[0.6em] text-white/40 uppercase">{children}</span>
+      {required && (
+        <span className="text-[8px] tracking-[0.4em] text-[#00ffff]/60 uppercase border border-[#00ffff]/20 px-1.5 py-0.5">
+          {t('contact.required')}
+        </span>
+      )}
+    </div>
+  );
+};
 
 const inputCls = "w-full bg-transparent border-b border-white/10 outline-none text-white text-sm tracking-wide py-3 placeholder:text-white/20 focus:border-[#00ffff]/50 transition-colors duration-300";
 const selectCls = "w-full bg-[#0a0a12] border border-white/10 outline-none text-white text-sm tracking-wide py-3 px-4 focus:border-[#00ffff]/50 transition-colors duration-300 appearance-none cursor-pointer";
@@ -33,6 +37,7 @@ const Divider = ({ label }: { label: string }) => (
 // ── お問い合わせフォーム ──────────────────────────────────────────────────────
 
 const InquiryForm = () => {
+  const { t } = useApp();
   const [data, setData] = useState({ name: '', email: '', type: '', message: '' });
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
@@ -40,43 +45,43 @@ const InquiryForm = () => {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('お問い合わせありがとうございます。\n48時間以内に返信いたします。');
+    alert(t('contact.alert.inquiry'));
   };
 
   return (
     <form onSubmit={onSubmit} className="space-y-10">
       {/* 氏名 */}
       <div>
-        <FieldLabel required>名前</FieldLabel>
+        <FieldLabel required>{t('contact.f.name')}</FieldLabel>
         <input
           type="text" name="name" value={data.name} onChange={onChange}
-          placeholder="山田 太郎" className={inputCls} required
+          placeholder={t('contact.ph.name')} className={inputCls} required
         />
       </div>
 
       {/* メール */}
       <div>
-        <FieldLabel required>メールアドレス</FieldLabel>
+        <FieldLabel required>{t('contact.f.email')}</FieldLabel>
         <input
           type="email" name="email" value={data.email} onChange={onChange}
-          placeholder="your@email.com" className={inputCls} required
+          placeholder={t('contact.ph.email')} className={inputCls} required
         />
       </div>
 
       {/* 種別 */}
       <div className="relative">
-        <FieldLabel required>お問い合わせ種別</FieldLabel>
+        <FieldLabel required>{t('contact.f.type')}</FieldLabel>
         <div className="relative">
           <select name="type" value={data.type} onChange={onChange} className={selectCls} required>
-            <option value="">選択してください</option>
-            <option value="service">サービスについての質問</option>
-            <option value="improvement">既存サイトの改善・相談</option>
-            <option value="estimate">見積もり・料金について</option>
-            <option value="trouble">不具合・トラブルの報告</option>
-            <option value="maintenance">運用・保守について</option>
-            <option value="partner">パートナー・業務提携</option>
-            <option value="media">メディア掲載・取材</option>
-            <option value="other">その他</option>
+            <option value="">{t('contact.ph.select')}</option>
+            <option value="service">{t('contact.type.service')}</option>
+            <option value="improvement">{t('contact.type.improvement')}</option>
+            <option value="estimate">{t('contact.type.estimate')}</option>
+            <option value="trouble">{t('contact.type.trouble')}</option>
+            <option value="maintenance">{t('contact.type.maintenance')}</option>
+            <option value="partner">{t('contact.type.partner')}</option>
+            <option value="media">{t('contact.type.media')}</option>
+            <option value="other">{t('contact.type.other')}</option>
           </select>
           <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/30 text-xs">▼</div>
         </div>
@@ -84,16 +89,16 @@ const InquiryForm = () => {
 
       {/* 内容 */}
       <div>
-        <FieldLabel required>お問い合わせ内容</FieldLabel>
+        <FieldLabel required>{t('contact.f.message')}</FieldLabel>
         <textarea
           name="message" value={data.message} onChange={onChange}
-          placeholder="詳細をご記入ください。" className={textareaCls} required
+          placeholder={t('contact.ph.message')} className={textareaCls} required
         />
       </div>
 
       <div className="pt-4">
-        <WireframeButton type="submit" className="w-full">送信する</WireframeButton>
-        <p className="text-[10px] tracking-[0.5em] text-white/20 uppercase text-center mt-6">Response within 48 hours.</p>
+        <WireframeButton type="submit" className="w-full">{t('contact.btn.submit')}</WireframeButton>
+        <p className="text-[10px] tracking-[0.5em] text-white/20 uppercase text-center mt-6">{t('contact.response')}</p>
       </div>
     </form>
   );
@@ -102,6 +107,7 @@ const InquiryForm = () => {
 // ── 制作依頼フォーム（既存） ─────────────────────────────────────────────────
 
 const OrderForm = () => {
+  const { t } = useApp();
   const [data, setData] = useState({
     companyName: '', personName: '', email: '', currentPhase: '',
     industry: '', sitePurpose: '', pageScale: '', updateFrequency: '',
@@ -113,7 +119,7 @@ const OrderForm = () => {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('制作依頼ありがとうございます。\n48時間以内に返信いたします。');
+    alert(t('contact.alert.order'));
   };
 
   return (
@@ -121,34 +127,34 @@ const OrderForm = () => {
       {/* 基本情報 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-          <FieldLabel required>会社名</FieldLabel>
+          <FieldLabel required>{t('contact.f.company')}</FieldLabel>
           <input type="text" name="companyName" value={data.companyName} onChange={onChange}
-            placeholder="会社名" className={inputCls} required />
+            placeholder={t('contact.ph.company')} className={inputCls} required />
         </div>
         <div>
-          <FieldLabel required>担当者名</FieldLabel>
+          <FieldLabel required>{t('contact.f.person')}</FieldLabel>
           <input type="text" name="personName" value={data.personName} onChange={onChange}
-            placeholder="担当者名" className={inputCls} required />
+            placeholder={t('contact.ph.person')} className={inputCls} required />
         </div>
       </div>
 
       <div>
-        <FieldLabel required>メールアドレス</FieldLabel>
+        <FieldLabel required>{t('contact.f.email')}</FieldLabel>
         <input type="email" name="email" value={data.email} onChange={onChange}
-          placeholder="メールアドレス" className={inputCls} required />
+          placeholder={t('contact.ph.email')} className={inputCls} required />
       </div>
 
-      <Divider label="プロジェクト情報" />
+      <Divider label={t('contact.section.project')} />
 
       <div className="relative">
-        <FieldLabel required>現在のフェーズ</FieldLabel>
+        <FieldLabel required>{t('contact.f.phase')}</FieldLabel>
         <div className="relative">
           <select name="currentPhase" value={data.currentPhase} onChange={onChange}
             className={selectCls} required>
-            <option value="">選択してください</option>
-            <option value="launch">立ち上げ期</option>
-            <option value="renewal">既存のサイトの見直し</option>
-            <option value="growth">集客・拡張を強化したい</option>
+            <option value="">{t('contact.ph.select')}</option>
+            <option value="launch">{t('contact.phase.launch')}</option>
+            <option value="renewal">{t('contact.phase.renewal')}</option>
+            <option value="growth">{t('contact.phase.growth')}</option>
           </select>
           <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/30 text-xs">▼</div>
         </div>
@@ -156,85 +162,85 @@ const OrderForm = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-          <FieldLabel>業種</FieldLabel>
+          <FieldLabel>{t('contact.f.industry')}</FieldLabel>
           <input type="text" name="industry" value={data.industry} onChange={onChange}
-            placeholder="業種" className={inputCls} />
+            placeholder={t('contact.ph.industry')} className={inputCls} />
         </div>
         <div>
-          <FieldLabel>サイト目的</FieldLabel>
+          <FieldLabel>{t('contact.f.purpose')}</FieldLabel>
           <input type="text" name="sitePurpose" value={data.sitePurpose} onChange={onChange}
-            placeholder="サイト目的" className={inputCls} />
+            placeholder={t('contact.ph.purpose')} className={inputCls} />
         </div>
       </div>
 
       <div className="relative">
-        <FieldLabel>想定ページ規模</FieldLabel>
+        <FieldLabel>{t('contact.f.scale')}</FieldLabel>
         <div className="relative">
           <select name="pageScale" value={data.pageScale} onChange={onChange} className={selectCls}>
-            <option value="">選択してください</option>
-            <option value="small">1〜3ページ程度</option>
-            <option value="medium">4〜7ページ程度</option>
-            <option value="large">8ページ以上</option>
+            <option value="">{t('contact.ph.select')}</option>
+            <option value="small">{t('contact.scale.small')}</option>
+            <option value="medium">{t('contact.scale.medium')}</option>
+            <option value="large">{t('contact.scale.large')}</option>
           </select>
           <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/30 text-xs">▼</div>
         </div>
       </div>
 
       <div className="relative">
-        <FieldLabel>想定更新頻度</FieldLabel>
+        <FieldLabel>{t('contact.f.update')}</FieldLabel>
         <div className="relative">
           <select name="updateFrequency" value={data.updateFrequency} onChange={onChange} className={selectCls}>
-            <option value="">選択してください</option>
-            <option value="fixed">ほぼ固定で運用する</option>
-            <option value="regular">月1〜2回更新したい</option>
-            <option value="frequent">頻繁に更新・改善したい</option>
+            <option value="">{t('contact.ph.select')}</option>
+            <option value="fixed">{t('contact.update.fixed')}</option>
+            <option value="regular">{t('contact.update.regular')}</option>
+            <option value="frequent">{t('contact.update.frequent')}</option>
           </select>
           <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/30 text-xs">▼</div>
         </div>
       </div>
 
       <div className="relative">
-        <FieldLabel>必要な支援レベル</FieldLabel>
+        <FieldLabel>{t('contact.f.support')}</FieldLabel>
         <div className="relative">
           <select name="supportLevel" value={data.supportLevel} onChange={onChange} className={selectCls}>
-            <option value="">選択してください</option>
-            <option value="minimum">まず、必要最小限で始めたい</option>
-            <option value="balanced">設計と運用のバランスを取りたい</option>
-            <option value="full">改善と運用まで厚く伴走して欲しい</option>
+            <option value="">{t('contact.ph.select')}</option>
+            <option value="minimum">{t('contact.support.minimum')}</option>
+            <option value="balanced">{t('contact.support.balanced')}</option>
+            <option value="full">{t('contact.support.full')}</option>
           </select>
           <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/30 text-xs">▼</div>
         </div>
       </div>
 
-      <Divider label="詳細情報" />
+      <Divider label={t('contact.section.detail')} />
 
       <div>
-        <FieldLabel>希望納期</FieldLabel>
+        <FieldLabel>{t('contact.f.deadline')}</FieldLabel>
         <input type="text" name="deadline" value={data.deadline} onChange={onChange}
-          placeholder="希望納期" className={inputCls} />
+          placeholder={t('contact.ph.deadline')} className={inputCls} />
       </div>
 
       <div>
-        <FieldLabel>必要な機能・要件</FieldLabel>
+        <FieldLabel>{t('contact.f.requirements')}</FieldLabel>
         <textarea name="requirements" value={data.requirements} onChange={onChange}
-          placeholder="必要な機能・要件" className={textareaCls} />
+          placeholder={t('contact.ph.requirements')} className={textareaCls} />
       </div>
 
       <div>
-        <FieldLabel>参考サイト</FieldLabel>
+        <FieldLabel>{t('contact.f.reference')}</FieldLabel>
         <input type="text" name="referenceUrl" value={data.referenceUrl} onChange={onChange}
-          placeholder="参考サイト URL" className={inputCls} />
+          placeholder={t('contact.ph.reference')} className={inputCls} />
       </div>
 
       <div>
-        <FieldLabel>一番伝えたい価値</FieldLabel>
+        <FieldLabel>{t('contact.f.corevalue')}</FieldLabel>
         <textarea name="coreValue" value={data.coreValue} onChange={onChange}
-          placeholder="一番伝えたい価値" className={textareaCls} />
+          placeholder={t('contact.ph.corevalue')} className={textareaCls} />
       </div>
 
       <div className="pt-4">
-        <WireframeButton type="submit" className="w-full">送信する</WireframeButton>
-        <p className="text-[10px] tracking-[0.5em] text-white/20 uppercase text-center mt-6">Response within 48 hours.</p>
+        <WireframeButton type="submit" className="w-full">{t('contact.btn.submit')}</WireframeButton>
+        <p className="text-[10px] tracking-[0.5em] text-white/20 uppercase text-center mt-6">{t('contact.response')}</p>
       </div>
     </form>
   );
@@ -242,17 +248,19 @@ const OrderForm = () => {
 
 // ── タブ定義 ─────────────────────────────────────────────────────────────────
 
-const TABS = [
-  { id: 'inquiry', label: 'お問い合わせ', en: 'INQUIRY' },
-  { id: 'order',   label: '制作依頼',     en: 'ORDER' },
-] as const;
-
-type TabId = typeof TABS[number]['id'];
+const TAB_IDS = ['inquiry', 'order'] as const;
+type TabId = typeof TAB_IDS[number];
 
 // ── メイン ───────────────────────────────────────────────────────────────────
 
 export const Contact = () => {
+  const { t } = useApp();
   const [tab, setTab] = useState<TabId>('inquiry');
+
+  const TABS = [
+    { id: 'inquiry' as TabId, label: t('contact.tab.inquiry'), en: t('contact.tab.inquiry.en') },
+    { id: 'order' as TabId,   label: t('contact.tab.order'),   en: t('contact.tab.order.en') },
+  ];
 
   return (
     <div className="relative pt-20 md:pt-36">
@@ -271,12 +279,10 @@ export const Contact = () => {
             </div>
 
             <h1 className="fs-h1 font-bold tracking-[0.3em] md:tracking-[0.4em] mb-6 uppercase leading-tight">
-              {tab === 'inquiry' ? 'お問い合わせ' : '制作依頼'}
+              {tab === 'inquiry' ? t('contact.title.inquiry') : t('contact.title.order')}
             </h1>
             <p className="text-xs font-light text-white/30 tracking-[0.3em] leading-loose">
-              {tab === 'inquiry'
-                ? 'ご質問・ご相談はこちらから。'
-                : 'サイト制作のご依頼はこちらから。'}
+              {tab === 'inquiry' ? t('contact.inquiry.desc') : t('contact.order.desc')}
             </p>
           </div>
 

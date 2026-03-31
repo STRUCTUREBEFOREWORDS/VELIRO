@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
-import { Layout, Section, WireframeBox, AxisLine } from '../Common';
+import { Layout, Section, AxisLine } from '../Common';
+import { useApp } from '../../context/AppContext';
 
 const CATEGORIES = ['Corporate', 'LP', 'EC', 'Brand', 'Experimental'];
 
 export const Sample = () => {
+  const { t } = useApp();
   const [activeCategory, setActiveCategory] = useState('Corporate');
 
   return (
-    <div className="relative pt-36">
+    <div className="relative pt-20 md:pt-36">
       <AxisLine />
       <Section className="py-0 mb-32">
         <Layout>
           <div className="col-span-8 mb-24 text-center">
             <h1 className="fs-h1 font-semibold tracking-[0.3em] md:tracking-[0.4em] mb-12 uppercase leading-tight">Sample</h1>
             <p className="text-sm font-light text-white/40 tracking-[0.2em] leading-relaxed max-w-2xl mx-auto">
-              実績ではない。設計思想の提示。<br />
-              量ではなく構造力を見せる。
+              {t('sample.desc1')}<br />
+              {t('sample.desc2')}
             </p>
           </div>
 
@@ -56,8 +58,8 @@ export const Sample = () => {
           {/* 補足説明 */}
           <div className="col-span-8 mt-20 text-center">
             <p className="text-xs font-light text-white/30 tracking-[0.2em] leading-relaxed">
-              カテゴリー別に設計思想を提示。<br />
-              実績羅列型にしない。思想と設計力で勝つ。
+              {t('sample.footer1')}<br />
+              {t('sample.footer2')}
             </p>
           </div>
         </Layout>

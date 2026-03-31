@@ -1,11 +1,23 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useApp } from './context/AppContext';
 import { Navigation } from './components/Navigation';
 import { Home } from './components/pages/Home';
 import { Sample } from './components/pages/Sample';
 import { Process } from './components/pages/Process';
 import { Price } from './components/pages/Price';
 import { Contact } from './components/pages/Contact';
+
+const AppFooter = () => {
+  const { t } = useApp();
+  return (
+    <footer className="relative z-0 py-16 md:py-32 border-t border-white/5">
+      <div className="max-w-[1200px] px-6 mx-auto flex justify-between opacity-30 text-[10px] tracking-[0.4em] uppercase font-light">
+        <div>{t('footer.copy')}</div>
+        <div>{t('footer.location')}</div>
+      </div>
+    </footer>
+  );
+};
 
 function App() {
   return (
@@ -22,13 +34,7 @@ function App() {
               <Route path="/contact" element={<Contact />} />
             </Routes>
           </main>
-          
-          <footer className="relative z-0 py-16 md:py-32 border-t border-white/5">
-            <div className="max-w-[1200px] px-6 mx-auto flex justify-between opacity-30 text-[10px] tracking-[0.4em] uppercase font-light">
-              <div>© 2026 SAIREN STUDIO.</div>
-              <div>TOKYO / GLOBAL</div>
-            </div>
-          </footer>
+          <AppFooter />
         </div>
       </Router>
     </AppProvider>

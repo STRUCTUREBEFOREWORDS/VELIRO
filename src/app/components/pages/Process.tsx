@@ -1,47 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { Layout, Section } from '../Common';
+import { useApp } from '../../context/AppContext';
 
-const STEPS = [
-  {
-    id: '01',
-    title: 'DISCOVERY',
-    desc: '思想を抽出するための対話。',
-    questions: [
-      'なぜそれをやるのか？',
-      '誰のためか？',
-      '競合との差は？',
-    ],
-    range: [0.1, 0.28],
-  },
-  {
-    id: '02',
-    title: 'STRUCTURE',
-    desc: '情報の骨組みを設計。',
-    subtitle: '情報の骨格を設計する',
-    range: [0.28, 0.46],
-  },
-  {
-    id: '03',
-    title: 'DESIGN',
-    desc: '視覚的な秩序の構築。',
-    subtitle: '美は、構造の上にのみ成立する。',
-    range: [0.46, 0.64],
-  },
-  {
-    id: '04',
-    title: 'BUILD',
-    desc: '堅牢な実装。',
-    subtitle: '堅牢な実装。',
-    range: [0.64, 0.82],
-  },
-  {
-    id: '05',
-    title: 'DEPLOY',
-    desc: '世界への公開。',
-    subtitle: '世界へ。',
-    range: [0.82, 1.0],
-  },
+const STEP_RANGES = [
+  { id: '01', title: 'DISCOVERY', range: [0.1, 0.28] as [number, number] },
+  { id: '02', title: 'STRUCTURE', range: [0.28, 0.46] as [number, number] },
+  { id: '03', title: 'DESIGN',    range: [0.46, 0.64] as [number, number] },
+  { id: '04', title: 'BUILD',     range: [0.64, 0.82] as [number, number] },
+  { id: '05', title: 'DEPLOY',    range: [0.82, 1.0]  as [number, number] },
 ];
 
 const easing = [0.22, 1, 0.36, 1] as [number, number, number, number];
@@ -52,7 +19,20 @@ const CODE_LINE_POSITIONS = [...Array(12)].map(() => ({
 }));
 
 export const Process = () => {
+  const { t } = useApp();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const STEPS = [
+    {
+      ...STEP_RANGES[0],
+      desc: t('process.s01.desc'),
+      questions: [t('process.s01.q0'), t('process.s01.q1'), t('process.s01.q2')],
+    },
+    { ...STEP_RANGES[1], desc: t('process.s02.desc'), subtitle: t('process.s02.sub') },
+    { ...STEP_RANGES[2], desc: t('process.s03.desc'), subtitle: t('process.s03.sub') },
+    { ...STEP_RANGES[3], desc: t('process.s04.desc'), subtitle: t('process.s04.sub') },
+    { ...STEP_RANGES[4], desc: t('process.s05.desc'), subtitle: t('process.s05.sub') },
+  ];
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end'],
@@ -94,7 +74,7 @@ export const Process = () => {
               Process
             </h1>
             <p className="text-xs sm:text-sm md:text-base font-light text-white/40 tracking-[0.2em] md:tracking-[0.3em]">
-              思想が形になるまでの厳格なプロセス。
+              {t('process.intro.desc')}
             </p>
           </motion.div>
         </Layout>

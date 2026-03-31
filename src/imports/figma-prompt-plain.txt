@@ -1,0 +1,242 @@
+なるほど。
+それは「コードブロック（```）付き」で出したから、Figma側が“ファイル扱い”している可能性が高い。
+
+Figma Make は プレーンテキスト を想定している。
+コードフェンス付きだと誤認識する。
+
+なので今回は、
+
+・コードブロックなし
+・idタグなし
+・余計な装飾なし
+・完全プレーンテキスト
+
+で出す。
+
+そのままコピペしてOK。
+
+⸻
+
+========================
+Figma用・最終統合プロンプト（プレーンテキスト版）
+
+Create a premium custom web design agency website wireframe.
+
+This is a fully custom-made structure design company.
+No CMS features.
+No blog.
+No dynamic content system.
+Static, structure-focused design only.
+
+CORE CONCEPT:
+Emotion on top.
+Logic immediately below.
+Trust through structure.
+
+STYLE:
+	•	Dark base (#0a0a12)
+	•	Minimal subtle cyan accent
+	•	Apple-inspired simplicity
+	•	No gradients
+	•	No glow effects
+	•	No decorative noise
+	•	8-column grid system
+	•	Large whitespace
+	•	Strong vertical rhythm
+	•	Typography-driven layout
+
+GLOBAL RULES:
+	•	120px side margin
+	•	160px vertical section spacing
+	•	Max 2 lines per paragraph
+	•	No icons
+	•	No heavy graphics
+	•	1 screen = 1 message
+
+⸻
+
+HOME
+
+HERO (Full Screen)
+
+Large centered headline:
+
+「解放せよ
+感性と感覚を。」
+
+Below in smaller logical copy:
+
+「構造設計によって、
+ブランドの可能性を最大化する。」
+
+Below small descriptor line:
+
+「完全オーダーメイドの設計会社」
+
+Primary CTA: PRICEを見る
+Secondary CTA: 相談する
+
+⸻
+
+PHILOSOPHY BLOCK
+
+3-column minimal layout:
+
+設計思想
+構造最適化
+長期運用設計
+
+⸻
+
+PROCESS PREVIEW
+
+Minimal horizontal text flow:
+
+相談 → 設計 → 可視化 → 構築 → 公開 → 最適化
+
+Single CTA: PROCESSを見る
+
+⸻
+
+FINAL CTA
+
+Centered message:
+
+「構造を整えますか。」
+
+Single button: PRICEを見る
+
+⸻
+
+PRICE
+
+HERO
+
+「価格ではなく、構造で選ばれる。」
+
+Sub:
+「完全オーダーメイド。2つの選択。」
+
+⸻
+
+PRICING SECTION
+
+Two clean vertical cards side by side.
+
+CORE
+30万円
+	•	設計
+	•	最大5ページ
+	•	基本導線設計
+	•	レスポンシブ対応
+
+SIGNATURE
+50万円
+	•	設計
+	•	最大7ページ
+	•	ブランド再整理
+	•	CV構造最適化
+	•	価格導線設計
+
+SIGNATURE slightly larger visually.
+No aggressive badge.
+
+⸻
+
+ASSURANCE BLOCK
+
+追加料金は事前合意制
+制作期間目安提示
+修正回数明示
+
+⸻
+
+FINAL CTA
+
+「構造を整える。」
+
+Button: 無料カウンセリング
+
+⸻
+
+PROCESS
+
+HERO
+
+「制作は、設計で決まる。」
+
+Sub:
+「ブラックボックスにしない。」
+
+⸻
+
+SCROLL NARRATIVE SECTIONS
+
+01 聞く。
+目的と課題を整理する。
+
+02 設計する。
+構造と導線を決める。
+
+03 可視化する。
+ワイヤーフレームで共有する。
+
+04 構築する。
+正確に実装する。
+
+05 公開する。
+計測可能な状態にする。
+
+06 最適化する。
+改善を続ける。
+
+Large faint background numbers.
+No timeline graphics.
+Minimal layout.
+
+⸻
+
+CONTACT
+
+Minimal form:
+Name
+Email
+Project summary
+Budget range select
+
+Trust line below form:
+
+「直接設計者が対応します。」
+
+⸻
+
+Deliver clean wireframe only.
+No styling.
+No heavy UI.
+Structure clarity over decoration.
+
+========================
+
+これならFigmaで読み込めるはず。
+
+⸻
+
+あと1つ重要。
+
+今のスクショを見ると、
+ヒーローコピーが
+
+「思考は発想の原石である」
+
+になっている。
+
+これは理性的で良いが、
+「解放せよ 感性と感覚を」とは温度が違う。
+
+どちらを軸にするかで
+ブランドの人格が変わる。
+
+今の段階なら、
+どちらを最終軸にするか一度整理した方がいい。
+
+ここ、かなり重要だ。

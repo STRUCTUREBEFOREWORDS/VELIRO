@@ -46,6 +46,12 @@ const STEPS = [
 
 const easing = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
+// Pre-computed random values (stable across renders — must not be inside component)
+const CODE_LINE_POSITIONS = [...Array(12)].map(() => ({
+  left: Math.random() * 30 + 10,
+  width: Math.random() * 40 + 20,
+}));
+
 export const Process = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -240,18 +246,12 @@ const StepDesign = ({ scrollProgress, step }: any) => {
           {/* タイポグラフィの整列アニメーション */}
           <motion.div
             className="mt-20 space-y-4"
-            style={{ 
+            style={{
               opacity: useTransform(scrollProgress, [step.range[0] + 0.05, step.range[0] + 0.15], [0, 1])
             }}
           >
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="h-px bg-white/10 mx-auto"
-                style={{
-                  width: useTransform(scrollProgress, [step.range[0] + 0.08 + i * 0.03, step.range[0] + 0.16 + i * 0.03], ['0%', '60%'])
-                }}
-              />
+            {[0, 1, 2].map((i) => (
+              <DesignLine key={i} scrollProgress={scrollProgress} step={step} i={i} />
             ))}
           </motion.div>
         </motion.div>
@@ -369,23 +369,43 @@ const ProgressIndicator = ({ scrollProgress }: any) => {
   );
 };
 
+// Sub-component: one rect in StructureWireframe
+const WireframeRect = ({ scrollProgress, range, i }: { scrollProgress: any; range: number[]; i: number }) => {
+  const opacity = useTransform(scrollProgress, [range[0] + i * 0.04, range[0] + i * 0.04 + 0.1], [0, 0.6]);
+  return (
+    <motion.div
+      className="absolute border border-white/20"
+      style={{ left: `${i * 15}%`, top: `${i * 20}%`, width: '60%', height: '50%', opacity }}
+    />
+  );
+};
+
+// Sub-component: one line in DesignStep
+const DesignLine = ({ scrollProgress, step, i }: { scrollProgress: any; step: any; i: number }) => {
+  const width = useTransform(scrollProgress, [step.range[0] + 0.08 + i * 0.03, step.range[0] + 0.16 + i * 0.03], ['0%', '60%']);
+  return <motion.div className="h-px bg-white/10 mx-auto" style={{ width }} />;
+};
+
+// Sub-component: one line in CodeLinesBackground
+const CodeLine = ({ scrollProgress, range, i }: { scrollProgress: any; range: number[]; i: number }) => {
+  const top = useTransform(scrollProgress, [range[0], range[1]], [`${-10 + i * 8}%`, `${100 + i * 8}%`]);
+  const opacity = useTransform(scrollProgress, [range[0], range[0] + 0.1, range[1] - 0.1, range[1]], [0, 0.3, 0.3, 0]);
+  const { left, width } = CODE_LINE_POSITIONS[i];
+  return (
+    <motion.div
+      className="absolute h-px bg-gradient-to-r from-transparent via-[#00ffff]/20 to-transparent"
+      style={{ left: `${left}%`, width: `${width}%`, top, opacity }}
+    />
+  );
+};
+
 // 構造図ワイヤーフレーム
 const StructureWireframe = ({ scrollProgress, range }: any) => {
   return (
     <div className="relative w-full h-80">
       {/* 3つの矩形が段階的に描画 */}
       {[0, 1, 2].map((i) => (
-        <motion.div
-          key={i}
-          className="absolute border border-white/20"
-          style={{
-            left: `${i * 15}%`,
-            top: `${i * 20}%`,
-            width: '60%',
-            height: '50%',
-            opacity: useTransform(scrollProgress, [range[0] + i * 0.04, range[0] + i * 0.04 + 0.1], [0, 0.6])
-          }}
-        />
+        <WireframeRect key={i} scrollProgress={scrollProgress} range={range} i={i} />
       ))}
 
       {/* 接続線 */}
@@ -404,20 +424,7 @@ const CodeLinesBackground = ({ scrollProgress, range }: any) => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {[...Array(12)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute h-px bg-gradient-to-r from-transparent via-[#00ffff]/20 to-transparent"
-          style={{
-            left: `${Math.random() * 30 + 10}%`,
-            width: `${Math.random() * 40 + 20}%`,
-            top: useTransform(
-              scrollProgress,
-              [range[0], range[1]],
-              [`${-10 + i * 8}%`, `${100 + i * 8}%`]
-            ),
-            opacity: useTransform(scrollProgress, [range[0], range[0] + 0.1, range[1] - 0.1, range[1]], [0, 0.3, 0.3, 0]),
-          }}
-        />
+        <CodeLine key={i} scrollProgress={scrollProgress} range={range} i={i} />
       ))}
     </div>
   );

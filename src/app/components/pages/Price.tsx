@@ -20,11 +20,14 @@ export const Price = () => {
         <Layout>
           <div className="col-span-8 mb-16 md:mb-24 text-center px-4">
             <h1 className="fs-h1 font-bold tracking-[0.3em] md:tracking-[0.4em] mb-8 md:mb-12 uppercase leading-tight">Price</h1>
-            <p className="fs-base font-light text-white/40 tracking-widest max-w-xl mx-auto leading-relaxed">
-              価格で勝たない。構造で圧倒する。
+            <p className="copy-singleline fs-base font-light text-white/40 tracking-widest max-w-xl mx-auto leading-relaxed">
+              価格で勝たない。構造で圧倒する。 完全オーダーメイドのみ。 すべてを構造と工数で説明する。
             </p>
-            <p className="text-sm font-light text-white/30 tracking-[0.2em] mt-6">
-              月額プランで、あなたのサイトを継続的に支援。
+            <p className="copy-multiline hidden">
+              価格で勝たない。構造で圧倒する。<br />
+              <br />
+              完全オーダーメイドのみ。<br />
+              すべてを構造と工数で説明する。
             </p>
           </div>
 
@@ -163,9 +166,17 @@ export const Price = () => {
 
           {/* 価格の正当化 */}
           <div className="col-span-8 mt-32 text-center">
-            <p className="text-sm font-light text-white/40 tracking-[0.2em] mb-8 leading-relaxed">
-              価格の正当化はPROCESS体験で行う。<br />
-              安売りしない。サブスク化しない。工数と構造で説明する。
+            <p className="copy-multiline text-sm font-light text-white/40 tracking-[0.2em] mb-4 leading-relaxed">
+              価格で勝たない。構造で圧倒する。<br />
+              <br />
+              完全オーダーメイドのみ。<br />
+              すべてを構造と工数で説明する。
+            </p>
+            <p className="copy-singleline hidden">
+              価格で勝たない。構造で圧倒する。 完全オーダーメイドのみ。 すべてを構造と工数で説明する。
+            </p>
+            <p className="text-xs font-light text-white/20 tracking-[0.15em] mb-8">
+              価格の正当化はPROCESS体験で行う。
             </p>
             <WireframeButton variant="secondary" onClick={() => navigate('/process')}>
               PROCESSを体験する

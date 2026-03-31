@@ -369,12 +369,17 @@ export const Home = () => {
           <div className="col-span-8 text-center py-12 md:py-20 border border-white/10 bg-white/5 mx-4 md:mx-0 relative overflow-hidden">
             <WireframeBackground variant="minimal" />
             <div className="relative z-10 px-4">
+              <p className="copy-singleline hidden">
+                価格で勝たない。構造で圧倒する。 完全オーダーメイドのみ。 すべてを構造と工数で説明する。
+              </p>
               <h2 className="fs-h3 font-bold tracking-[0.2em] md:tracking-[0.3em] uppercase mb-6 md:mb-8">
                 価格で勝たない。構造で圧倒する。
               </h2>
-              <p className="text-sm font-light text-white/40 tracking-[0.2em] mb-8 md:mb-12 max-w-2xl mx-auto leading-relaxed">
+              <p className="copy-multiline text-sm font-light text-white/40 tracking-[0.2em] mb-8 md:mb-12 max-w-2xl mx-auto leading-relaxed">
+                価格で勝たない。構造で圧倒する。<br />
+                <br />
                 完全オーダーメイドのみ。<br />
-                サブスク化しない。工数と構造で説明する。
+                すべてを構造と工数で説明する。
               </p>
               <WireframeButton onClick={() => navigate('/price')} className="w-full sm:w-auto">
                 PRICEを見る

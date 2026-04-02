@@ -8,11 +8,10 @@ export async function trackEvent(payload: {
   metadata?: Record<string, unknown>;
 }) {
   try {
-    await fetch(`${API_BASE}/events`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    navigator.sendBeacon(
+      "https://api.arcwove.com/events",
+      JSON.stringify(payload)
+    );
   } catch (e) {
     // サイレントフェイル
   }
